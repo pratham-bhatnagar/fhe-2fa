@@ -4,6 +4,7 @@ import { getInstance, provider, getTokenSignature } from "./utils/fhevm";
 import { toHexString } from "./utils/utils";
 import { Contract } from "ethers";
 import SmartWalletOTPABI from "./abi/SmartWalletOTP";
+import toast from "react-hot-toast";
 
 let instance;
 const CONTRACT_ADDRESS = "0xFEa531Ec1E4359589B7B98E1C4fD6a9B94075b14";
@@ -104,6 +105,11 @@ function SmartWalletOTP() {
       );
       setLoading("Waiting for transaction validation...");
       setLoading("");
+      if (isValidTOTP) {
+        toast.success("Auth Code correct! Validated!");
+      } else {
+        toast.error("Auth Code incorrect!");
+      }
       setIsValidTOTP(result.toString());
     } catch (e) {
       console.log(e);
@@ -113,70 +119,52 @@ function SmartWalletOTP() {
   };
 
   return (
-    <div className="mt-5">
-     
-      <div className="flex flex-col md:flex-row">
-        <div className="flex flex-col md:w-1/2 p-4">
-          <div className="bg-black py-10 px-10 text-left mb-6">
-            <div className="text-white">
-              Secret Key: <span className="text-custom-green">{secretKey}</span>
-            </div>
-            <button
-              className="bg-gray-200 hover:bg-blue-400 text-black font-bold py-2 px-4 rounded mb-8"
-              onClick={reencrypt}
-            >
-              Decrypt 2FA Secret Key
-            </button>
-            <div className="text-custom-green">
-              <p className="text-white mb-2">
-                Next TOTP Code in:{" "}
-                <span className="text-custom-green">{seconds} seconds</span>
+    <div className="mt-5 text-slate-700">
+      <div className="grid grid-cols-1 ">
+        <div className="p-2">
+          <h1 className="font-semibold text-lg text-slate-700 mb-1">
+            3. Genrate 2FA with FHE
+          </h1>
+          <div className="rounded p-2 border border-gray-400 w-fit m-2">
+            <div className="p-1">
+              <h1 className="text-3xl text-center font-semibold text-purple-500">
+                {TOTP}
+              </h1>
+              <p>
+                refresh in <span className="text-red-300">{seconds}</span>{" "}
               </p>
             </div>
-            <div className="flex items-center">
-              <div className="text-white border border-white border-4 rounded p-6 text-center mb-2">
-                <div className="text-2xl">{TOTP}</div>
-              </div>
-            </div>
-            <div className="text-custom-green mb-1">Enter TOTP Code:</div>
-            <form onSubmit={validateOTP}>
-              <input
-                type="number"
-                placeholder="Enter amount to mint"
-                value={inputTOTP}
-                onChange={handleTOTPChange}
-                className="border rounded-md px-4 py-2 mb-1 bg-white"
-              />
-              <div className="flex flex-row ">
-                <div className=" flex-1">
-                  {" "}
-                  <button
-                    type="submit"
-                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-8"
-                  >
-                    Validate
-                  </button>
-                </div>
-                <div className="text-custom-green items-center flex justify-center flex-1">
-                  <p className="text-white mb-2">
-                    Is TOTP Valid?:{" "}
-                    <span className="text-custom-green">{isValidTOTP}</span>
-                  </p>
-                </div>
-              </div>
-            </form>
           </div>
-          {encryptedData && (
-            <div className="text-gray-500">
-              <p>Generated Ciphertext:</p>
-              <div className="overflow-y-auto h-10 flex flex-col">
-                <p>{"0x" + encryptedData.substring(0, 26) + "..."}</p>
+        </div>
+        <div className="p-2">
+          <h1 className="font-semibold text-lg text-slate-700 mb-1">
+            4. Verify Code
+          </h1>
+          <form onSubmit={validateOTP}>
+            <input
+              type="number"
+              placeholder="Enter amount to mint"
+              value={inputTOTP}
+              onChange={handleTOTPChange}
+              className="border rounded-md px-4 py-2 mb-1 bg-white"
+            />
+            <div className="flex flex-row ">
+              <div className=" flex-1">
+                {" "}
+                <button
+                  type="submit"
+                  className="bg-purple-400 p-2 mx-2 rounded border-none text-slate-800 font-semibold"
+                >
+                  Validate
+                </button>
+                <p className=" mb-2">
+                  Is TOTP Valid?:{" "}
+                  <span className="text-purple-500">{isValidTOTP}</span>
+                </p>
               </div>
             </div>
-          )}
-        
+          </form>
         </div>
-        
       </div>
     </div>
   );
